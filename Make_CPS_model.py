@@ -1,7 +1,6 @@
 import numpy as np 
 import math
 
-
 def make():
 	data=np.loadtxt('updated_model')
 	#s=str(str(i*reso)+"km_vel.dat")
@@ -23,8 +22,16 @@ HR         VP       VS         RHO    QP    QS    ETAP  ETAS FREFP FREFS \n")
 			pass
 		else:				
 			f.writelines("%f    \t  %f    \t  %f   \t  %s   \t   %s   \t  %s  \t %s \t  %s \t  %s  \t %s \n"
-				%(-(data[j+1,1]-data[j,1]) ,  data[j,0]*1.73,   data[j,0],  "0.8500", "0"  ,"0", "0.0",  "0.0",  "1.0", "1.0"))
-
+				%(-(data[j+1,1]-data[j,1]) ,  data[j,0]*1.73,   data[j,0],  "2.85", "1000"  ,"100", "0.0",  "0.0",  "1.0", "1.0"))
+	f.close()
+	data=np.loadtxt('mantle')
+	f=open("temp_mod","a")
+	for j in range(len(data)-1):
+		if data[j,0]==0.0:
+			pass
+		else:				
+			f.writelines("%f    \t  %f    \t  %f   \t  %f   \t   %s   \t  %s  \t %s \t  %s \t  %s  \t %s \n"
+				%(-(data[j+1,1]-data[j,1]) ,  data[j,4],   data[j,5],  data[j,6], data[j,7],  data[j,8], "0.0",  "0.0",  "1.0", "1.0"))
 	f.writelines("50.000000    	  9.696200    	  5.292200   	  3.923300   	   419.940000   	  166.800000  	 0.0 	  0.0 	  1.0  	 1.0 \n")
 	f.writelines("50.000000    	  9.864000    	  5.398900   	  3.921800   	   422.550000   	  168.780000  	 0.0 	  0.0 	  1.0  	 1.0 \n")
 	f.writelines("50.000000    	  10.032000    	  5.504700   	  3.920600   	   425.510000   	  170.820000  	 0.0 	  0.0 	  1.0  	 1.0 \n")

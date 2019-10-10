@@ -51,11 +51,12 @@ class PolygonInteractor(object):
     showverts = True
     epsilon = 5  # max pixel distance to count as a vertex hit
 
-    def __init__(self, ax, poly):
+    def __init__(self, ax, poly,f):
         if poly.figure is None:
             raise RuntimeError('You must first add the polygon to a figure '
                                'or canvas before defining the interactor')
         self.ax = ax
+        self.file = f
         self.canvas = poly.figure.canvas
         self.poly = poly
 
@@ -91,7 +92,7 @@ class PolygonInteractor(object):
         Artist.update_from(self.line, poly)
         self.line.set_visible(vis)  # don't use the poly visibility state
         os.system('rm -f updated_model')
-        np.savetxt('updated_model',self.poly.xy)
+        np.savetxt(self.file,self.poly.xy)
 
     def get_ind_under_point(self, event):
         'get the index of the vertex under point if within epsilon tolerance'
@@ -190,5 +191,5 @@ class PolygonInteractor(object):
             return
         if event.key == 'r':
             print('Saving updated_model')
-            os.system('rm -f updated_model')
-            np.savetxt('updated_model',self.poly.xy)
+            #os.system('rm -f updated_model')
+            np.savetxt(self.file,self.poly.xy)

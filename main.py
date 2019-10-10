@@ -36,8 +36,14 @@ path=os.getcwd()
 #os.system("rm -f updated_model ")
 #os.system("rm -f temp* tmp* ")
 rf='./PS49_stack.xy'
+import prep_model
+
+
 vel='./vel.inp'
+
 data=np.loadtxt(vel)
+
+#### setting vs
 temp=np.zeros((len(data),2))
 temp[:,0]=data[:,0]
 y=np.append(temp[:,0],0.0)
@@ -49,14 +55,29 @@ x=np.append(x,temp[0,1])
 tmp=np.zeros((len(x),2))
 tmp[:,0]=y
 tmp[:,1]=x
+np.savetxt('updated_model_vs', tmp) 
 
 
-
-np.savetxt('updated_model', tmp) 
+vp_vs='./vp_vs.inp'
+data=np.loadtxt(vp_vs)
+#### setting vpvs
+temp=np.zeros((len(data),2))
+temp[:,0]=data[:,0]
+y=np.append(temp[:,0],0.0)
+y=np.append(y,0.0)
+#y.append(y[0])
+temp[:,1]=data[:,1]
+x=np.append(temp[:,1],temp[-1,1])
+x=np.append(x,temp[0,1])
+tmp=np.zeros((len(x),2))
+tmp[:,0]=y
+tmp[:,1]=x
+np.savetxt('updated_model_vp_vs', tmp) 
 
 
 disp='./200_SURF96.inp'
-vel = './updated_model'
+vp_vs = './updated_model_vp_vs'
+vel = './updated_model_vs'
 #copyfile(path+vel,path+'/updated_model')
 #vel = './updated_model'
 
@@ -106,34 +127,44 @@ def save_as(): ### This is not working
     f = tkSimpleDialog.askstring
     if f is None: # asksaveasfile return `None` if dialog closed with "cancel".
         return
-    command='cp updated_model '+ str(f)
+    command='cp updated_model_vs '+ str(f)
     os.system(command)
 
-def plot(vel,rf,disp,fig):
+def plot(vel,vp_vs,rf,disp,fig):
     plt.cla()
     fig.clf() 
     ################Vs
     data=np.loadtxt(vel)
     y=list(data[:,1])
-    #y.append(y[-1])
-    #y.append(y[0])
-    #np.append(y,)
-    #np.append(y,y[0])
     x=list(data[:,0])
-    #x.append(0)
-    #x.append(0)
-    #np.append(x,-1)
-    #ax_vel = fig.add_subplot()
     poly = Polygon(np.column_stack([x, y]), animated=True)
-    ax_vel=fig.add_subplot(131)
+    ax_vel=fig.add_subplot(141)
     ax_vel.add_patch(poly)
-    ax_vel.set_xlim([min(x),max(x)])
-    ax_vel.set_ylim([-100,0])
+    ax_vel.set_xlim([min(x),4.0])
+    ax_vel.set_ylim([min(y),max(y)])
     ax_vel.set_xlabel('Vs ($km/s$)')
     ax_vel.set_ylabel('Depth ($km$)')
     plt.grid()
-    p = Modify_model.PolygonInteractor(ax_vel, poly)
+    Modify_model.PolygonInteractor(ax_vel, poly,'updated_model_vs')
     canvas.draw()
+    
+    
+    ################Vs
+    data=np.loadtxt(vp_vs)
+    y=list(data[:,1])
+    x=list(data[:,0])
+    poly_vp_vs = Polygon(np.column_stack([x, y]), animated=True)
+    ax_vp_vs=fig.add_subplot(142)
+    '''
+    ax_vp_vs.add_patch(poly_vp_vs)
+    ax_vp_vs.set_xlim([0,2.0])
+    ax_vp_vs.set_ylim([min(y),max(y)])
+    ax_vp_vs.set_xlabel('Vp$_$Vs ')
+    ax_vp_vs.set_ylabel('Depth ($km$)')
+    #plt.grid()
+    Modify_model.PolygonInteractor(ax_vp_vs, poly_vp_vs,'updated_model_vp_vs')
+    canvas.draw()
+    '''
     ######## make CPS input file
     #Make_CPS_model
     Make_CPS_model.make()
@@ -141,7 +172,7 @@ def plot(vel,rf,disp,fig):
 
     #############RF
     # plot observed RF
-    ax_rf = fig.add_subplot(132)
+    ax_rf = fig.add_subplot(143)
     data=np.loadtxt(rf) 
     ax_rf.plot(data[:,1],data[:,0],color='k',label='Observed')
     ##### run and plot RF forward
@@ -160,7 +191,7 @@ def plot(vel,rf,disp,fig):
     ######### Disp
     ### Plot observed disp
     data=np.loadtxt(disp,usecols=(5,6,7))
-    ax_disp = fig.add_subplot(133)
+    ax_disp = fig.add_subplot(144)
     #ax2.errorbar(profile_in,topo_in,yerr=topo_error,fmt='o-',markersize=marker_size,ecolor='b',label='Observed')    
     ax_disp.errorbar(data[:,1],data[:,0],xerr=data[:,2],fmt='o',label='Observed')
     ### run and plot disp forward
@@ -204,7 +235,7 @@ toolbar = NavigationToolbar2Tk(canvas, root)
 toolbar.update()
 
 canvas.get_tk_widget().pack(side=tkinter.TOP, fill=tkinter.BOTH, expand=1)
-canvas.draw()
+#canvas.draw()
 canvas.mpl_connect("key_press_event", on_key_press)
 
 
@@ -219,7 +250,7 @@ filemenu.add_command(label="Exit", command=root.quit)
 menubar.add_cascade(label="Open", menu=filemenu)
 
 menubar.add_command(label="Save Model", command=lambda:save())
-menubar.add_command(label="Run Model", command=lambda:plot(vel,rf,disp,fig))
+menubar.add_command(label="Run Model", command=lambda:plot(vel,vp_vs,rf,disp,fig))
 menubar.add_command(label="Quit", command=_quit)
 
 
