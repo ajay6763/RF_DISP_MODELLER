@@ -2,7 +2,8 @@ import numpy as np
 import math
 
 def make():
-	data=np.loadtxt('updated_model')
+	data=np.loadtxt('updated_model_vs')
+	data_vp_vs=np.loadtxt('updated_model_vp_vs')
 	#s=str(str(i*reso)+"km_vel.dat")
 	f=open("temp_mod","w")
 	f.write("MODEL\n\
@@ -17,12 +18,12 @@ LINE09 \n\
 LINE10 \n\
 LINE11 \n \
 HR         VP       VS         RHO    QP    QS    ETAP  ETAS FREFP FREFS \n")
-	for j in range(len(data)-3):
+	for j in range(len(data)-1):
 		if data[j,0]==0.0:
 			pass
 		else:				
 			f.writelines("%f    \t  %f    \t  %f   \t  %s   \t   %s   \t  %s  \t %s \t  %s \t  %s  \t %s \n"
-				%(-(data[j+1,1]-data[j,1]) ,  data[j,0]*1.73,   data[j,0],  "2.85", "1000"  ,"100", "0.0",  "0.0",  "1.0", "1.0"))
+				%(-(data[j+1,1]-data[j,1]) ,  data[j,0]*data_vp_vs[j,0],   data[j,0],  "2.95", "1000"  ,"100", "0.0",  "0.0",  "1.0", "1.0"))
 	f.close()
 	data=np.loadtxt('mantle')
 	f=open("temp_mod","a")

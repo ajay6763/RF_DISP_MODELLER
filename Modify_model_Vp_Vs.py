@@ -4,7 +4,6 @@ from matplotlib.artist import Artist
 import matplotlib.pyplot as plt
 from matplotlib.patches import Polygon
 import os
-import interpolate_lib
 def dist(x, y):
     """
     Return the distance between two points.
@@ -52,13 +51,12 @@ class PolygonInteractor(object):
     showverts = True
     epsilon = 5  # max pixel distance to count as a vertex hit
 
-    def __init__(self, ax, poly,f,step):
+    def __init__(self, ax, poly,f):
         if poly.figure is None:
             raise RuntimeError('You must first add the polygon to a figure '
                                'or canvas before defining the interactor')
         self.ax = ax
         self.file = f
-        self.step = step
         self.canvas = poly.figure.canvas
         self.poly = poly
 
@@ -93,16 +91,9 @@ class PolygonInteractor(object):
         vis = self.line.get_visible()
         Artist.update_from(self.line, poly)
         self.line.set_visible(vis)  # don't use the poly visibility state
-        #os.system('rm -f updated_model')
-        '''
-        np.savetxt('temp',self.poly.xy)
-        data=np.loadtxt('temp')
-        X,Y = interpolate_lib.interpolate_1D_RF_DISP(data[:,1],data[:,0],self.step)
-        to_save = np.column_stack((Y,X))
-        np.savetxt(self.file,to_save)
-        os.system('rm -f temp')
+        os.system('rm -f updated_model')
         np.savetxt(self.file,self.poly.xy)
-        ''' 
+
     def get_ind_under_point(self, event):
         'get the index of the vertex under point if within epsilon tolerance'
 
@@ -202,16 +193,3 @@ class PolygonInteractor(object):
             print('Saving updated_model')
             #os.system('rm -f updated_model')
             np.savetxt(self.file,self.poly.xy)
-            '''
-            np.savetxt('temp',self.poly.xy)
-            data=np.loadtxt('temp')
-            #X,Y = interpolate_lib.interpolate_1D_RF_DISP(data[:-3,1],data[:-3,0],self.step)
-            X,Y = interpolate_lib.interpolate_1D(data[:,1],data[:,0],self.step)
-            print X,Y
-            X=np.flip(X,axis=0)
-            Y=np.flip(Y,axis=0)
-            to_save = np.column_stack((Y[:-1],X[:-1]))
-            print(to_save)
-            np.savetxt(self.file,to_save)
-            #os.system('rm -f temp')
-            '''
